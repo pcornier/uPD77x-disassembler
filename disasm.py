@@ -33,7 +33,6 @@ You can choose between physical or LSFR order for the disassembly with the -d op
       row = row + '%003X\t%003X' % (addr, b)
       
       op = 'unknown opcode'
-      N = b & 1
       if b == 0:
         op = 'NOP'
       elif b == 0x4:
@@ -266,7 +265,7 @@ You can choose between physical or LSFR order for the disassembly with the -d op
       elif b == 0x402 or b == 0x403:
         op = 'JPM, 0->L, {0}->A11'.format(b&1)
       elif b >= 0x440 and b <= 0x47d:
-        op = 'DGKS {0:b} (N={1})'.format((b>>2)&15, N)
+        op = 'DGKS {0:b} (N={1})'.format((b>>2)&15, b&1)
 
       elif b >= 0x500 and b <= 0x57f:
         op = '{0:03X}->M[H,L]'.format(b&127)
