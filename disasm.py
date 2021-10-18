@@ -7,14 +7,12 @@ def main():
   help = '''
 uPD777 Disassembler.
 This is based on Oguchi's design note document. The bit numbering starts with 1 as in the original document.
-You can choose between physical or LSFR order for the disassembly with the -d option, default is LSFR.
   '''
 
   parser = argparse.ArgumentParser(description=help, formatter_class=argparse.RawTextHelpFormatter)
   required = parser.add_argument_group('required arguments:')
   required.add_argument('-i', '--input', help='input file', required=True)
   required.add_argument('-o', '--output', help='output file', required=True)
-  parser.add_argument('-d', '--order', nargs='?', type=str, default='lsfr', help='phy or lsfr')
   args = parser.parse_args()
 
   with open(args.output, 'w') as outfile:
@@ -22,16 +20,13 @@ You can choose between physical or LSFR order for the disassembly with the -d op
     romfile = open(args.input, 'rb')
     romdata = bytes(romfile.read())
     romfile.close()
-    
+
     listing = {}
 
     for i in range(0, len(romdata), 2):
       b = (romdata[i] << 8 | romdata[i+1]) & 0xfff
       addr = i >> 1
 
-      row = ''
-      row = row + '%003X\t%003X' % (addr, b)
-      
       op = 'unknown opcode'
       if b == 0:
         op = 'NOP'
@@ -45,7 +40,7 @@ You can choose between physical or LSFR order for the disassembly with the -d op
         op = 'SRE'
       elif b == 0x28 or b == 0x29:
         op = '(STB<<1|{0})->STB'.format(b&1)
-      
+
       elif b == 0x49:
         op = '4H BLK, skip if 4H HBlank'
       elif b == 0x4a:
@@ -280,28 +275,24 @@ You can choose between physical or LSFR order for the disassembly with the -d op
         op = '{0:03X}->A3'.format(b&127)
       elif b >= 0x780 and b <= 0x7ff:
         op = '{0:03X}->A4'.format(b&127)
-        
+
       elif b >= 0x800 and b <= 0xbff:
         op = 'JP {0:03X}'.format(b&1023)
       elif b >= 0xc00 and b <= 0xfff:
         op = 'JS {0:03X}'.format(b&1023)
-      
+
+      row = ''
+      row = row + '%003X\t%003X' % (addr, b)
+
       pcnext = (addr&1920) | ((addr&63)<<1) | ((addr>>5)&1 == (addr>>6)&1)
-      
+
       row = row + '\t' + op
-      row = row + '\n'
+      row = row + '\t%003X\n' % pcnext
 
-      listing[addr] = (row, pcnext)
-    
-    if args.order == 'lsfr':
-      outfile.write(listing.get(0)[0])
-      for item in listing.items():
-        if (listing.get(item[1][1])):
-          outfile.write(listing.get(item[1][1])[0])
-    else:
-      for item in listing.items():
-        outfile.write(item[1][0])
+      listing[addr] = row
 
+    for item in listing.items():
+      outfile.write(item[1])
     outfile.close()
 
 if __name__ == '__main__':
