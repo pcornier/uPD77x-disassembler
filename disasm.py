@@ -258,14 +258,14 @@ This is based on Oguchi's design note document. The bit numbering starts with 1 
       elif b == 0x400 or b == 0x401:
         op = '{0}->A11'.format(b&1)
       elif b == 0x402 or b == 0x403:
-        op = 'JPM, 0->L, {0}->A11'.format(b&1)
+        op = 'JPM, 0->L {0}->A11'.format(b&1)
       elif b >= 0x440 and b <= 0x47d:
-        op = 'DGKS {0:b} (N={1})'.format((b>>2)&15, b&1)
+        op = '{0:b}->DGKS {1}->A11'.format((b>>2)&15, b&1)
 
       elif b >= 0x500 and b <= 0x57f:
         op = '{0:03X}->M[H,L]'.format(b&127)
       elif b >= 0x580 and b <= 0x5ff:
-        op = '{0}->L, {1:03X}->H'.format((b>>5)&3, b&127)
+        op = '{0}->L {1:03X}->H'.format((b>>5)&3, b&127)
 
       elif b >= 0x600 and b <= 0x67f:
         op = '{0:03X}->A1'.format(b&127)
