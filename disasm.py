@@ -22,6 +22,7 @@ This is based on Oguchi's design note document. The bit numbering starts with 1 
     romfile.close()
 
     listing = {}
+    pcnext = 0
 
     for i in range(0, len(romdata), 2):
       b = (romdata[i] << 8 | romdata[i+1]) & 0xfff
@@ -282,12 +283,12 @@ This is based on Oguchi's design note document. The bit numbering starts with 1 
         op = 'JS {0:03X}'.format(b&1023)
 
       row = ''
-      row = row + '%003X\t%003X' % (addr, b)
+      row = row + '%003X\t%003X' % (pcnext, b)
 
       pcnext = (addr&1920) | ((addr&63)<<1) | ((addr>>5)&1 == (addr>>6)&1)
 
       row = row + '\t' + op
-      row = row + '\t%003X\n' % pcnext
+      row = row + '\n'
 
       listing[addr] = row
 
